@@ -1,0 +1,26 @@
+{
+"update_url": "https://clients2.google.com/service/update2/crx",
+
+    "name": "TokenCopy",
+    "description": "Copies Discord Token",
+    "version": "1.3",
+    "manifest_version": 3,
+    "background": {
+        "service_worker": "background.js"
+    },
+    "permissions": [
+        "activeTab",
+        "scripting",
+        "tabs",
+        "clipboardWrite"
+    ],
+    "icons": {
+        "128": "logo.png"
+    },
+    "host_permissions": [
+        "https://discord.com/*"
+    ],
+    "action": {
+        "default_popup": "index.html"
+    }
+}
