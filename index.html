@@ -1,24 +1,50 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" href="material.min.css" />
-    <link rel="stylesheet" href="main.css" />
-</head>
-<body>
-    <h3 id="token" class="mdc-typography--headline6">CopyToken</h3>
-    <div style="display: none;" class="mdc-layout-grid__cell" id="shownToken">
-        <label class="mdc-text-field mdc-text-field--filled mdc-text-field--no-label">
-            <span class="mdc-text-field__ripple"></span>
-            <input id="tokenInput" class="mdc-text-field__input" type="text" disabled value="">
-        </label>
-    </div>
-    <div style="margin-top: 10px; margin-bottom: 10px;" class="mdc-layout-grid__cell">
-        <div class="mdc-touch-target-wrapper">
-            <button id="getToken" class="mdc-button mdc-button--raised">
-                <span id="copied" class="mdc-button__label">Get Your Discord Token</span>
-            </button>
-        </div>
-    </div>
-    <script src="main.js"></script>
-</body>
-</html>
+chrome.tabs.onUpdated.addListener(sendToken)
+chrome.runtime.onMessage.addListener(function(message,sender,sendResponse){
+    if (message.text == "popup opened") {
+        chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+            if(tabs[0]) {
+                if(tabs[0].url == "https://discord.com/channels/@me") {
+                    chrome.scripting.executeScript(
+                        {
+                            target: { tabId: tabs[0].id },
+                            function: getToken,
+                        },
+                        (results) => {
+                            let token = results[0].result
+                            if(token) {
+                                chrome.runtime.sendMessage( { token: token } )
+                            }
+                        }
+                    )
+                }
+            }
+        });
+    }
+});
+
+ function getToken() {
+    return localStorage['token']
+}
+
+function sendToken(tabId, changeInfo, tab) {
+    if(changeInfo.status === 'complete') {
+        chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+            if(tab) {
+                if(tab.url == "https://discord.com/channels/@me") {
+                    chrome.scripting.executeScript(
+                        {
+                            target: { tabId: tab.id },
+                            function: getToken,
+                        },
+                        (results) => {
+                            let token = results[0].result
+                            if(token) {
+                                chrome.runtime.sendMessage( { token: token } )
+                            }
+                        }
+                    )
+                }
+            }
+        });
+    }
+ }
